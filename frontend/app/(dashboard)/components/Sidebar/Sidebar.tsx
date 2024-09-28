@@ -10,6 +10,7 @@ import StickyNote2RoundedIcon from "@mui/icons-material/StickyNote2Rounded";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+
 const SidebarMenu = [
   {
     name: "Dashboard",
@@ -71,58 +72,54 @@ const Sidebar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const pathName = usePathname();
 
+  // Extract the admin path (e.g., "/admin/admin_<id>")
+  const baseAdminPath = pathName.split("/").slice(0, 3).join("/");
+
   const toggleDropdown = (name: string) => {
-    if (activeDropdown === name) {
-      setActiveDropdown(null); // Close if the same menu is clicked
-    } else {
-      setActiveDropdown(name); // Open the clicked menu
-    }
+    setActiveDropdown((prev) => (prev === name ? null : name));
   };
 
   return (
-    <>
-      <aside className="bg-[#e7e7e7b7] shadow-md shadow-[#080e2091] min-w-72 w-full h-full">
-        <Image alt="Logo" height={200} width={300} src="/logo.svg" />
-        <nav className="border-t-2 border-gray-300">
-          <ul className="flex flex-col justify-center items-start pl-5 pr-10 pt-5">
-            {SidebarMenu.map((menu) => (
-              <React.Fragment key={menu.name}>
-                <li className="py-2">
-                  <button
-                    className={`flex items-center gap-2 hover:text-black hover:bg-black/20 hover:border-l-3 border-[#cb3cff] px-4 py-2 w-full ${
-                      activeDropdown === menu.name
-                        ? "text-[#cb3cff]"
-                        : "text-black"
-                    }`}
-                    onClick={() => {
-                      menu.content ? toggleDropdown(menu.name) : null;
-                    }}
-                  >
-                    {menu.icon}
-                    {menu.name}
-                  </button>
-                </li>
+    <aside className="bg-gray-100 w-full sticky h-full">
+      <Image alt="Logo" height={200} width={300} src="/logo.svg" />
+      <nav className="border-t-2 border-gray-300">
+        <ul className="flex flex-col justify-center items-start pl-5 pr-10 pt-5">
+          {SidebarMenu.map((menu) => (
+            <React.Fragment key={menu.name}>
+              <li className="py-2">
+                <button
+                  className={`flex items-center gap-2 hover:text-black hover:bg-black/20 hover:border-l-3 border-[#cb3cff] px-4 py-2 w-full ${
+                    activeDropdown === menu.name
+                      ? "text-[#cb3cff]"
+                      : "text-black"
+                  }`}
+                  onClick={() => {
+                    menu.content ? toggleDropdown(menu.name) : null;
+                  }}
+                >
+                  {menu.icon}
+                  {menu.name}
+                </button>
+              </li>
+              {activeDropdown === menu.name && (
                 <div className="flex flex-col justify-start items-start gap-2">
-                  {activeDropdown === menu.name &&
-                    menu?.content?.map((item, index) => (
-                      <li key={index} className="p-2 px-4">
-                        {" "}
-                        {/* Ensure key is used here */}
-                        <a
-                          className="hover:text-black hover:bg-black/20 hover:border-l-3 border-[#cb3cff] px-4 py-2 w-full text-black"
-                          href={`${pathName}/${item.toLowerCase()}`}
-                        >
-                          {item}
-                        </a>
-                      </li>
-                    ))}
+                  {menu?.content?.map((item, index) => (
+                    <li key={index} className="p-2 px-4">
+                      <a
+                        className="hover:text-black hover:bg-black/20 hover:border-l-3 border-[#cb3cff] px-4 py-2 w-full text-black"
+                        href={`${baseAdminPath}/${item.toLowerCase()}`}
+                      >
+                        {item}
+                      </a>
+                    </li>
+                  ))}
                 </div>
-              </React.Fragment>
-            ))}
-          </ul>
-        </nav>
-      </aside>
-    </>
+              )}
+            </React.Fragment>
+          ))}
+        </ul>
+      </nav>
+    </aside>
   );
 };
 

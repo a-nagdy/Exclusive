@@ -32,6 +32,10 @@ const productSchema = new Schema(
       required: false,
       type: Boolean,
     },
+    galleryImages: {
+      data: Buffer,
+      contentType: String,
+    },
     stock: {
       type: String,
       default: "In Stock",

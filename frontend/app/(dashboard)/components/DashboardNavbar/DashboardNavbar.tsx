@@ -10,8 +10,10 @@ import {
 } from "@nextui-org/react";
 import { useDispatch } from "react-redux";
 
+import getTitleFromPath from "@/lib/getTitleFromPath/getTitleFromPath";
 import { User as UserType } from "@/types";
 import { usePathname, useRouter } from "next/navigation";
+import BreadCrumbs from "../Breadcrumbs/Breadcrumbs";
 
 const DashboardNavbar = ({ admin }: { admin: { admin: UserType } }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,25 +21,20 @@ const DashboardNavbar = ({ admin }: { admin: { admin: UserType } }) => {
   const router = useRouter();
   console.log(pathName);
   // Utility function to get the title based on the path
-  const getTitleFromPath = (pathName: string): string | undefined => {
-    const match = pathName.match(/\/[^/]+\/admin_/);
-    if (match && match.index !== undefined) {
-      const parts = pathName.slice(match.index + match[0].length).split("/");
-      console.log(parts, "parts");
-      return parts[1] || "Dashboard"; // Return the segment after the admin ID or "Dashboard" if not present
-    }
-    return undefined; // Add a return statement for cases where the condition is not met
-  };
+
   const handleLogout = () => {
     dispatch(logOutUser());
     router.push("/");
   };
 
   return (
-    <div className="flex justify-between items-center gap-4 p-10 text-black">
-      <h1 className="capitalize text-black text-2xl font-bold">
-        {getTitleFromPath(pathName)}
-      </h1>
+    <div className="flex justify-between items-center gap-4 pt-5 px-2 text-black">
+      <div className="flex flex-col justify-center items-start gap-2">
+        <h1 className="capitalize text-black text-2xl font-bold">
+          {getTitleFromPath(pathName)}
+        </h1>
+        <BreadCrumbs path={pathName} />
+      </div>
       <Dropdown placement="left-start" backdrop="blur">
         <DropdownTrigger>
           <User

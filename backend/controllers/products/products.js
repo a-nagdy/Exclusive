@@ -1,4 +1,3 @@
-import validateRequiredFields from "../../middleware/validations/validateRequiredFields.js";
 import Product from "../../models/products/products.js";
 
 const productController = {
@@ -50,61 +49,52 @@ const productController = {
     }
   },
   addProduct: async (req, res) => {
+    console.log("Incoming request body:", req.body);
+    console.log("Incoming request files:", req.files);
+
+    // Get the photo and gallery image files
+    const photoFile = req.files.photo ? req.files.photo[0] : null;
+    const galleryFiles = req.files.galleryImages ? req.files.galleryImages : [];
+
+    console.log(photoFile); // Use the correct variable to log the file
+
+    // Check if photo is present
+    if (!photoFile) {
+      return res.status(400).json({ message: "Photo is required" });
+    }
+
     const product = new Product({
       name: req.body.name,
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
       quantity: req.body.quantity,
-      photo: req.body.photo,
+      photo: photoFile.path, // Store main image path
+      galleryImages: galleryFiles.map((file) => file.path), // Store all gallery image paths
       shipping: req.body.shipping,
       stock: req.body.stock,
     });
 
-    console.log(product);
-
     try {
-      const userRequiredFields = [
-        "email",
-        "description",
-        "price",
-        "category",
-        "quantity",
-      ];
-
-      validateRequiredFields(userRequiredFields)(req, res);
-
-      if (
-        !product.name ||
-        !product.description ||
-        !product.price ||
-        !product.category ||
-        !product.quantity
-      ) {
-        return res.status(400).json({ message: "All fields are required" });
-      }
-      console.log("passed first if");
-
       const existingProduct = await Product.findOne({ name: product.name });
       if (existingProduct) {
         return res.status(409).json({ message: "Product already exists" });
       }
+
       const savedProduct = await product.save();
-
       if (!savedProduct) {
-        return res.status(500).json({
-          message: "Product could not be saved",
-        });
+        return res.status(500).json({ message: "Product could not be saved" });
       }
-      console.log("passed third  if");
 
-      res
-        .status(201)
-        .json({ message: "Product added successfully", product: savedProduct });
+      res.status(201).json({
+        message: "Product added successfully",
+        product: savedProduct,
+      });
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
+
   getProductById: async (req, res) => {
     const productId = req.params.id;
 
